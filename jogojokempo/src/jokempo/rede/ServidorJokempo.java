@@ -42,7 +42,22 @@ public class ServidorJokempo {
 	}
 	
 	public static void removeClient(Socket removerSocket) {
-		clients.remove(removerSocket);
-		System.out.println("Cliente removido: " + removerSocket.getRemoteSocketAddress());
+		GerenciaClientes cliente = clients.remove(removerSocket);
+		if (cliente != null) {
+			try {
+				removerSocket.close();
+			} catch (IOException e) {
+				System.err.println("Erro ao fechar socket: " + e.getMessage());
+			}
+			System.out.println("Cliente removido: " + removerSocket.getRemoteSocketAddress());
+		}
+	}
+	
+	public static void removeBothClients() {
+		for (Socket socket : clients.keySet()) {
+			if (!socket.isClosed()) {
+				removeClient(socket);
+			}
+		}
 	}
 }
