@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //classe que inicia o servidor e gerencia conexões
 public class ServidorJokempo {
 	private final int porta;
+	private static final int MAXCLIENTES = 2;
 	private static ConcurrentHashMap<Socket, GerenciaClientes> clients = new ConcurrentHashMap<>();
 	
 	public ServidorJokempo(int porta) {
@@ -18,12 +19,22 @@ public class ServidorJokempo {
 			System.out.println("Servidor Jokempo iniciado na porta " + porta);
 			
 			while(true) {
-				Socket clienteSocket = servidorSocket.accept();
-				System.out.println("Cliente conectado: " + clienteSocket.getRemoteSocketAddress());
+				if (clients.size()<MAXCLIENTES) {
+					Socket clienteSocket = servidorSocket.accept();
+					System.out.println("Cliente conectado: " + clienteSocket.getRemoteSocketAddress());
               
-				GerenciaClientes gerenciador = new GerenciaClientes(clienteSocket);
-                clients.put(clienteSocket, gerenciador);
-                new Thread(gerenciador).start();
+					GerenciaClientes gerenciador = new GerenciaClientes(clienteSocket);
+					clients.put(clienteSocket, gerenciador);
+					new Thread(gerenciador).start();
+				} else {
+                    System.out.println("Servidor cheio. Número máximo de clientes conectados.");
+                    try (Socket clienteSocket = servidorSocket.accept()) {
+                        PrintWriter out = new PrintWriter(clienteSocket.getOutputStream(), true);
+                        out.println("Sala cheia. Tente novamente mais tarde.");
+                        clienteSocket.close();
+                        removeClient(clienteSocket);
+                    }
+				}
 			}
 		} catch (IOException e) {
             System.err.println("Erro no servidor: " + e.getMessage());

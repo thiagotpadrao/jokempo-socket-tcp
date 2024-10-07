@@ -141,15 +141,15 @@ public class GerenciaClientes implements Runnable{
         int placarPlayer2 = jogo.getPontosplayer2();
 
         if (placarPlayer1 >= 3) {
-            msgplayer1.println("\nVocê venceu o jogo!\n");
-            msgplayer1.println("Placar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
-            msgplayer2.println("Você perdeu o jogo.");
-            msgplayer2.println("Placar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
+            msgplayer1.println("\nVocê venceu o jogo!");
+            msgplayer1.println("\nPlacar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente");
+            msgplayer2.println("\nVocê perdeu o jogo.");
+            msgplayer2.println("\nPlacar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente");
         } else if (placarPlayer2 >= 3) {
-            msgplayer2.println("Você venceu o jogo!");
-            msgplayer2.println("Placar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
-            msgplayer1.println("Você perdeu o jogo.");
-            msgplayer1.println("Placar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
+            msgplayer2.println("\nVocê venceu o jogo!");
+            msgplayer2.println("\nPlacar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente");
+            msgplayer1.println("\nVocê perdeu o jogo.");
+            msgplayer1.println("\nPlacar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente");
         }
 
         // Fechar conexões

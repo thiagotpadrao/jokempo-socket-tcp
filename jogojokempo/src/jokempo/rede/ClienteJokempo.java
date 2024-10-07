@@ -16,7 +16,7 @@ public class ClienteJokempo {
 	public void start() {
 		try (Socket socket = new Socket(endereco, portaservidor); BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); PrintWriter out = new PrintWriter(socket.getOutputStream(), true); BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))){
 			
-			System.out.println("Conectado ao servidor Jokempo.");
+			System.out.println("Tentando conectar ao servidor Jokempo.");
 			
 			new Thread(() -> {
 				try {
