@@ -21,23 +21,23 @@ public class ServidorJokempo {
 			while(true) {
 				if (clients.size()<MAXCLIENTES) {
 					Socket clienteSocket = servidorSocket.accept();
-					System.out.println("Cliente conectado: " + clienteSocket.getRemoteSocketAddress());
+					System.out.println("\nCliente conectado: " + clienteSocket.getRemoteSocketAddress());
               
 					GerenciaClientes gerenciador = new GerenciaClientes(clienteSocket);
 					clients.put(clienteSocket, gerenciador);
 					new Thread(gerenciador).start();
 				} else {
-                    System.out.println("Servidor cheio. Número máximo de clientes conectados.");
                     try (Socket clienteSocket = servidorSocket.accept()) {
+                        System.out.println("\nUm terceiro cliente tentou se juntar ao jogo, mas o servidor já está cheio. Número máximo de clientes conectados.");
                         PrintWriter out = new PrintWriter(clienteSocket.getOutputStream(), true);
-                        out.println("Sala cheia. Tente novamente mais tarde.");
+                        out.println("\nSala cheia. Tente novamente mais tarde.");
                         clienteSocket.close();
                         removeClient(clienteSocket);
                     }
 				}
 			}
 		} catch (IOException e) {
-            System.err.println("Erro no servidor: " + e.getMessage());
+            System.err.println("\nErro no servidor: " + e.getMessage());
         }
 	}
 	
@@ -47,9 +47,9 @@ public class ServidorJokempo {
 			try {
 				removerSocket.close();
 			} catch (IOException e) {
-				System.err.println("Erro ao fechar socket: " + e.getMessage());
+				System.err.println("\nErro ao fechar socket: " + e.getMessage());
 			}
-			System.out.println("Cliente removido: " + removerSocket.getRemoteSocketAddress());
+			System.out.println("\nCliente removido: " + removerSocket.getRemoteSocketAddress());
 		}
 	}
 	
