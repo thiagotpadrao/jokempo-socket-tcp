@@ -18,8 +18,6 @@ public class GerenciaClientes implements Runnable{
 	private static Jogada jogadaplayer2;
 	private static PrintWriter msgplayer1;
 	private static PrintWriter msgplayer2;
-    private Socket socketPlayer1;
-    private Socket socketPlayer2;
 	
 	public GerenciaClientes (Socket socket) {
         this.clienteSocket = socket;
@@ -30,21 +28,20 @@ public class GerenciaClientes implements Runnable{
             synchronized (jogo) {
                 if (msgplayer1 == null) {
                     msgplayer1 = out;
-                    socketPlayer1 = clienteSocket; // Salvar o socket do player 1
                     playerid = 1;
-                    msgplayer1.println("\nAguardando um oponente se conectar para começar...");
+                    msgplayer1.println("\nConexão aceita. Aguardando um oponente se conectar para começar...");
                 } else if (msgplayer2 == null) {
                     msgplayer2 = out;
-                    socketPlayer2 = clienteSocket; // Salvar o socket do player 2
                     playerid = 2;
-                    msgplayer2.println("\nSeu adversário já estava te esperando. O jogo vai começar!");
-                    msgplayer1.println("Oponente conectado. O jogo vai começar!");
+                    msgplayer2.println("\nConexão aceita. Seu adversário já estava te esperando. O jogo vai começar!");
+                    msgplayer1.println("\nOponente conectado. O jogo vai começar!");
                     
+                    System.out.println("\n------------ Ambos os clientes conectaram. O jogo foi iniciado. ------------");
                     solicitarJogada();
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao configurar streams: " + e.getMessage());
+            System.err.println("\nErro ao configurar streams: " + e.getMessage());
         }
     }
 	
@@ -58,22 +55,30 @@ public class GerenciaClientes implements Runnable{
                     synchronized (jogo) {
                         if (playerid == 1 && jogadaplayer1 == null) {
                             jogadaplayer1 = jogadaplayer;
-                            if (jogadaplayer2 == null) msgplayer1.println("Aguardando jogada do oponente...");
+                            if (jogadaplayer2 == null) msgplayer1.println("\nAguardando jogada do oponente...");
                             if (msgplayer2 != null) {
-                                if (jogadaplayer2 == null) msgplayer2.println("Seu adversário jogou.");
+                                if (jogadaplayer2 == null) msgplayer2.println("\nSeu adversário jogou.");
                             }
                         } else if (playerid == 2 && jogadaplayer2 == null) {
                             jogadaplayer2 = jogadaplayer;
-                            if(jogadaplayer1 == null) msgplayer2.println("Aguardando jogada do oponente...");
+                            if(jogadaplayer1 == null) msgplayer2.println("\nAguardando jogada do oponente...");
                             if (msgplayer1 != null) {
-                                if (jogadaplayer1 == null) msgplayer1.println("Seu adversário jogou.");
+                                if (jogadaplayer1 == null) msgplayer1.println("\nSeu adversário jogou.");
                             }
                         }
     
                         if (jogadaplayer1 != null && jogadaplayer2 != null) {
-    
-                            Rodada resultadoplayer1 = jogo.jogar(jogadaplayer1, jogadaplayer2);
+                        	
+                        	Rodada resultadoplayer1 = jogo.jogar(jogadaplayer1, jogadaplayer2);
                             Rodada resultadoplayer2 = (resultadoplayer1 == Rodada.VITORIA) ? Rodada.DERROTA : (resultadoplayer1 == Rodada.DERROTA ? Rodada.VITORIA : Rodada.EMPATE);
+                            
+                            if (resultadoplayer1 == Rodada.VITORIA) {
+                            	System.out.println("\nO cliente 1 jogou " + jogadaplayer1 + " e o cliente 2 jogou " + jogadaplayer2 + ". O cliente 1 ganhou a rodada. (Placar: Cliente 1 - " + jogo.getPontosplayer1() + " X " + jogo.getPontosplayer2() + " - Cliente 2)");
+                            } else if (resultadoplayer2 == Rodada.VITORIA) {
+                            	System.out.println("\nO cliente 1 jogou " + jogadaplayer1 + " e o cliente 2 jogou " + jogadaplayer2 + ". O cliente 2 ganhou a rodada. (Placar: Cliente 1 - " + jogo.getPontosplayer1() + " X " + jogo.getPontosplayer2() + " - Cliente 2)");
+                            } else {
+                            	System.out.println("\nO cliente 1 jogou " + jogadaplayer1 + " e o cliente 2 jogou " + jogadaplayer2 + ". A rodada empatou. (Placar: Cliente 1 - " + jogo.getPontosplayer1() + " X " + jogo.getPontosplayer2() + " - Cliente 2)");
+                            }
     
                             enviaResultado(msgplayer1, resultadoplayer1);
                             enviaResultado(msgplayer2, resultadoplayer2);
@@ -90,18 +95,18 @@ public class GerenciaClientes implements Runnable{
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    out.println("Jogada inválida. Use: PEDRA, PAPEL ou TESOURA.");
+                    out.println("\nJogada inválida. Use: PEDRA, PAPEL ou TESOURA.");
                 }
             }
         } catch (IOException e) {
             if (!clienteSocket.isClosed()) {
-                System.err.println("Erro na comunicação com o cliente: " + e.getMessage());
+                System.err.println("\nErro na comunicação com o cliente: " + e.getMessage());
             }
         } finally {
             try {
                 clienteSocket.close();
             } catch (IOException e) {
-                System.err.println("Erro ao fechar socket: " + e.getMessage());
+                System.err.println("\nErro ao fechar socket: " + e.getMessage());
             }
             ServidorJokempo.removeClient(clienteSocket);
         }
@@ -109,11 +114,11 @@ public class GerenciaClientes implements Runnable{
 	
 	private void enviaResultado(PrintWriter msgplayer, Rodada resultado) {
     	if (resultado == Rodada.VITORIA) {
-            msgplayer.println("Você venceu a rodada!");
+            msgplayer.println("\nVocê venceu a rodada!");
         } else if (resultado == Rodada.DERROTA) {
-            msgplayer.println("Você perdeu a rodada!");
+            msgplayer.println("\nVocê perdeu a rodada!");
         } else {
-            msgplayer.println("A rodada foi empate!");
+            msgplayer.println("\nA rodada foi empate!");
         }
 	}
 	
@@ -131,14 +136,14 @@ public class GerenciaClientes implements Runnable{
         }
 
         if (msgplayer1 != null) {
-            msgplayer1.println("\n-------------------- Rodada " + rodadaAtual + " --------------------\n");
-            msgplayer1.println("Placar: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
-            msgplayer1.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
+            msgplayer1.println("\n-------------------- Rodada " + rodadaAtual + " --------------------");
+            msgplayer1.println("\nPlacar: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente");
+            msgplayer1.println("\nInsira sua jogada (PEDRA, PAPEL ou TESOURA): ");
         }
         if (msgplayer2 != null) {
-            msgplayer2.println("\n-------------------- Rodada " + rodadaAtual + " --------------------\n");
-            msgplayer2.println("Placar: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
-            msgplayer2.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
+            msgplayer2.println("\n-------------------- Rodada " + rodadaAtual + " --------------------");
+            msgplayer2.println("\nPlacar: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente");
+            msgplayer2.println("\nInsira sua jogada (PEDRA, PAPEL ou TESOURA): ");
         }
     }
 
@@ -147,23 +152,22 @@ public class GerenciaClientes implements Runnable{
         int placarPlayer2 = jogo.getPontosplayer2();
     
         if (placarPlayer1 >= 3) {
-            msgplayer1.println("\nVocê venceu o jogo!");
+            msgplayer1.println("\n--------------- Você venceu o jogo! ---------------");
             msgplayer1.println("\nPlacar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente");
-            msgplayer2.println("\nVocê perdeu o jogo.");
+            msgplayer2.println("\n--------------- Você perdeu o jogo. ---------------");
             msgplayer2.println("\nPlacar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente");
         } else if (placarPlayer2 >= 3) {
-            msgplayer2.println("\nVocê venceu o jogo!");
+            msgplayer2.println("\n--------------- Você venceu o jogo! ---------------");
             msgplayer2.println("\nPlacar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente");
-            msgplayer1.println("\nVocê perdeu o jogo.");
+            msgplayer1.println("\n--------------- Você perdeu o jogo. ---------------");
             msgplayer1.println("\nPlacar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente");
         }
     
         msgplayer1.println("\nO jogo acabou, você será desconectado.");
         msgplayer2.println("\nO jogo acabou, você será desconectado.");
         
-        System.out.println("Jogo encerrado.");
+        System.out.println("\n---------------- Foi decretado um vencedor. Jogo encerrado. ----------------");
 
-        // Remover ambos os clientes
         ServidorJokempo.removeBothClients();
     }
     

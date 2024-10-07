@@ -22,10 +22,10 @@ public class ClienteJokempo {
 				try {
 					String response;
 					while((response = in.readLine()) != null) {
-                        System.out.println("Servidor: " + response);
+                        System.out.println(response);
                     }
                 } catch (IOException e) {
-                    System.err.println("Conexão com o servidor perdida.");
+                    System.err.println("\nConexão com o servidor perdida.");
                 }
             }).start();
 			
@@ -34,7 +34,7 @@ public class ClienteJokempo {
                 out.println(input);
             }
         } catch (IOException e) {
-            System.err.println("Erro ao conectar ao servidor: " + e.getMessage());
+            System.err.println("\nErro ao conectar ao servidor: " + e.getMessage());
         }
 	}
 }
