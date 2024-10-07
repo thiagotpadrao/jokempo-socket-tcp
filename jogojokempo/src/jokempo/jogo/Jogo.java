@@ -4,10 +4,12 @@ package jokempo.jogo;
 public class Jogo {
 	private int pontosplayer1;
 	private int pontosplayer2;
+	private int numeroRodada;
 	
 	public Jogo () {
 		this.pontosplayer1 = 0;
 		this.pontosplayer2 = 0;
+		this.numeroRodada = 0;
 	}
 	
 	public Rodada jogar (Jogada jogadaplayer1, Jogada jogadaplayer2) {
@@ -21,6 +23,10 @@ public class Jogo {
             return Rodada.DERROTA;
         }
 	}
+
+	public boolean isGameOver() {
+        return pontosplayer1 >= 3 || pontosplayer2 >= 3;
+    }
 	
 	public int getPontosplayer1() {
 		return pontosplayer1;
@@ -29,4 +35,12 @@ public class Jogo {
 	public int getPontosplayer2() {
 		return pontosplayer2;
 	}
+
+	public int getNumeroRodada() {
+        return numeroRodada;
+    }
+
+    public void incrementarRodada() {
+        numeroRodada++;
+    }
 }

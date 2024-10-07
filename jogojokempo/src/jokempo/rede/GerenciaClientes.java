@@ -67,13 +67,17 @@ public class GerenciaClientes implements Runnable{
                         }
                         
                         if (jogadaplayer1 != null && jogadaplayer2 != null) {
-                        	jogadaplayer2 = jogadaplayer;
                         	
                         	Rodada resultadoplayer1 = jogo.jogar(jogadaplayer1, jogadaplayer2);
                         	Rodada resultadoplayer2 = (resultadoplayer1 == Rodada.VITORIA) ? Rodada.DERROTA : (resultadoplayer1 == Rodada.DERROTA ? Rodada.VITORIA : Rodada.EMPATE);
                         	
                             enviaResultado(msgplayer1, resultadoplayer1);
                             enviaResultado(msgplayer2, resultadoplayer2);
+
+                            if (jogo.isGameOver()) {
+                                encerrarJogo();
+                                break;
+                            }
                             
                             jogadaplayer1 = null;
                             jogadaplayer2 = null;
@@ -108,14 +112,56 @@ public class GerenciaClientes implements Runnable{
 	}
 	
     private void solicitarJogada() {
+        
+        jogo.incrementarRodada();
+
+        int rodadaAtual = jogo.getNumeroRodada();
+        
+        int placarPlayer1 = jogo.getPontosplayer1();
+        int placarPlayer2 = jogo.getPontosplayer2();
+
+        if(placarPlayer1 == 3){
+
+        }
+
         if (msgplayer1 != null) {
-        	msgplayer1.println("\n--------------------Começo de nova rodada--------------------\n");
-        	msgplayer1.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
+            msgplayer1.println("\n-------------------- Rodada " + rodadaAtual + " --------------------\n");
+            msgplayer1.println("Placar: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
+            msgplayer1.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
         }
         if (msgplayer2 != null) {
-        	msgplayer2.println("\n--------------------Começo de nova rodada--------------------\n");
-        	msgplayer2.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
+            msgplayer2.println("\n-------------------- Rodada " + rodadaAtual + " --------------------\n");
+            msgplayer2.println("Placar: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
+            msgplayer2.println("Insira sua jogada (PEDRA, PAPEL ou TESOURA): ");
         }
+    }
+
+    private void encerrarJogo() {
+        int placarPlayer1 = jogo.getPontosplayer1();
+        int placarPlayer2 = jogo.getPontosplayer2();
+
+        if (placarPlayer1 >= 3) {
+            msgplayer1.println("\nVocê venceu o jogo!\n");
+            msgplayer1.println("Placar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
+            msgplayer2.println("Você perdeu o jogo.");
+            msgplayer2.println("Placar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
+        } else if (placarPlayer2 >= 3) {
+            msgplayer2.println("Você venceu o jogo!");
+            msgplayer2.println("Placar Final: Você " + placarPlayer2 + " x " + placarPlayer1 + " Oponente\n");
+            msgplayer1.println("Você perdeu o jogo.");
+            msgplayer1.println("Placar Final: Você " + placarPlayer1 + " x " + placarPlayer2 + " Oponente\n");
+        }
+
+        // Fechar conexões
+        try {
+            clienteSocket.close();
+            if (msgplayer1 != null) msgplayer1.close();
+            if (msgplayer2 != null) msgplayer2.close();
+        } catch (IOException e) {
+            System.err.println("Erro ao encerrar o jogo: " + e.getMessage());
+        }
+
+        System.out.println("Jogo encerrado.");
     }
 	
 	public void sendMessage(String message) {
