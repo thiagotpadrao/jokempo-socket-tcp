@@ -9,7 +9,7 @@ import jokempo.utils.Mensagens;
 public class ServidorJokempo {
 	private final int porta;
 	private static final int MAXCLIENTES = 2;
-	private static ConcurrentHashMap<Socket, GerenciaClientes> clients = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<Socket, Gerenciador> clients = new ConcurrentHashMap<>();
 	
 	public ServidorJokempo(int porta) {
 		this.porta = porta;
@@ -23,7 +23,7 @@ public class ServidorJokempo {
 				if (clients.size()<MAXCLIENTES) {
 					Socket clienteSocket = servidorSocket.accept();
 					System.out.println(Mensagens.CONECTACLIENTE + clienteSocket.getRemoteSocketAddress());  
-					GerenciaClientes gerenciador = new GerenciaClientes(clienteSocket);
+					Gerenciador gerenciador = new Gerenciador(clienteSocket);
 					clients.put(clienteSocket, gerenciador);
 					new Thread(gerenciador).start();
 				} else {
@@ -42,7 +42,7 @@ public class ServidorJokempo {
 	}
 	
 	public static void removeClient(Socket removerSocket) {
-		GerenciaClientes cliente = clients.remove(removerSocket);
+		Gerenciador cliente = clients.remove(removerSocket);
 		if (cliente != null) {
 			try {
 				removerSocket.close();
