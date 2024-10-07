@@ -2,6 +2,7 @@ package jokempo.rede;
 
 import java.io.*;
 import java.net.*;
+import jokempo.utils.Mensagens;
 
 //classe que cuida da comunicação com o servidor para o cliente.
 public class ClienteJokempo {
@@ -16,7 +17,7 @@ public class ClienteJokempo {
 	public void start() {
 		try (Socket socket = new Socket(endereco, portaservidor); BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); PrintWriter out = new PrintWriter(socket.getOutputStream(), true); BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))){
 			
-			System.out.println("Tentando conectar ao servidor Jokempo.");
+			System.out.println(Mensagens.TENTACONECTAR);
 			
 			new Thread(() -> {
 				try {
@@ -25,7 +26,7 @@ public class ClienteJokempo {
                         System.out.println(response);
                     }
                 } catch (IOException e) {
-                    System.err.println("\nConexão com o servidor perdida.");
+                    System.err.println(Mensagens.PERDECONEXAO);
                 }
             }).start();
 			
@@ -34,7 +35,7 @@ public class ClienteJokempo {
                 out.println(input);
             }
         } catch (IOException e) {
-            System.err.println("\nErro ao conectar ao servidor: " + e.getMessage());
+            System.err.println(Mensagens.X_CONEXAO + e.getMessage());
         }
 	}
 }
