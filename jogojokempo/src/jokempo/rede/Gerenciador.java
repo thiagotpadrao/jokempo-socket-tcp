@@ -19,9 +19,7 @@ public class Gerenciador implements Runnable{
 	private static Jogada jogadaplayer2;	//armazena as jogadas do jogador 2
 	private static PrintWriter msgplayer1;	//enviar mensagens específicas para um cliente
 	private static PrintWriter msgplayer2;	//enviar mensagens específicas para outro cliente
-	
-    // Timeout de 60 segundos (60000 milissegundos)
-    private static final int TIMEOUT = 20000;
+    private static final int TIMEOUT = 75000;   //timeout - tempo para enviar jogada
 
 	public Gerenciador (Socket socket) {
         this.clienteSocket = socket;
