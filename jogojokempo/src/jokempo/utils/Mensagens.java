@@ -1,5 +1,6 @@
 package jokempo.utils;
 
+//classe para as Strings das mensagens
 public class Mensagens {
 	
 	//controle do servidor
