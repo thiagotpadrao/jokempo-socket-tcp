@@ -23,6 +23,7 @@ public class ServidorJokempo {
 			while(true) {
 				if (clients.size()<MAXCLIENTES) {
 					Socket clienteSocket = servidorSocket.accept();
+					
 					System.out.println(Mensagens.CONECTACLIENTE + clienteSocket.getRemoteSocketAddress());  
 					Gerenciador gerenciador = new Gerenciador(clienteSocket);
 					clients.put(clienteSocket, gerenciador);
