@@ -19,13 +19,19 @@ public class Gerenciador implements Runnable{
 	private static Jogada jogadaplayer2;	//armazena as jogadas do jogador 2
 	private static PrintWriter msgplayer1;	//enviar mensagens específicas para um cliente
 	private static PrintWriter msgplayer2;	//enviar mensagens específicas para outro cliente
-	
+    private static final int TIMEOUT = 75000;   //timeout - tempo para enviar jogada
+
 	public Gerenciador (Socket socket) {
         this.clienteSocket = socket;
         try {
+            // Configurando o timeout no socket
+            clienteSocket.setSoTimeout(TIMEOUT);
             in = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
             out = new PrintWriter(clienteSocket.getOutputStream(), true);
             conectarJogador(out);
+        } catch (SocketTimeoutException e) {
+            System.out.println("Cliente não enviou mensagens em " + (TIMEOUT / 1000) + " segundos. Desconectando...");
+            fecharConexao(); // Fecha a conexão se o timeout for atingido
         } catch (IOException e) {
             System.err.println(Mensagens.X_STREAMS + e.getMessage());
         } 
@@ -53,6 +59,9 @@ public class Gerenciador implements Runnable{
                     out.println(Mensagens.X_MOVE);
                 }
             }
+        } catch (SocketTimeoutException e) {
+            System.out.println("Cliente não respondeu em " + (TIMEOUT / 1000) + " segundos. Desconectando...");
+            fecharConexao();
         } catch (IOException e) {
             if (!clienteSocket.isClosed()) {
                 System.err.println(Mensagens.X_COMUN + e.getMessage());
