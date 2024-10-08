@@ -1,10 +1,10 @@
 package jokempo.jogo;
 
-//classe que cuida da lógica principal do jogo (decidir vencedores, validar jogadas, etc.).
+//classe que cuida da lógica principal do jogo 
 public class Jogo {
-	private int pontosplayer1;
-	private int pontosplayer2;
-	private int numeroRodada;
+	private int pontosplayer1;	//quantidade de pontos do player 1
+	private int pontosplayer2;	//quantidade de pontos do player 2
+	private int numeroRodada;	//numero da rodada atual
 	
 	public Jogo () {
 		this.pontosplayer1 = 0;
@@ -12,6 +12,7 @@ public class Jogo {
 		this.numeroRodada = 0;
 	}
 	
+	//método que retorna o resultado da rodada, dadas as jogadas dos players
 	public Rodada jogar (Jogada jogadaplayer1, Jogada jogadaplayer2) {
         if (jogadaplayer1 == jogadaplayer2) {
             return Rodada.EMPATE;
@@ -24,6 +25,7 @@ public class Jogo {
         }
 	}
 
+	//método que verifica se o alguém venceu o jogo
 	public boolean isGameOver() {
         return pontosplayer1 >= 3 || pontosplayer2 >= 3;
     }

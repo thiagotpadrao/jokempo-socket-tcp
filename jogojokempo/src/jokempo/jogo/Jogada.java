@@ -1,5 +1,6 @@
 package jokempo.jogo;
 
+//enumeração das jogadas possíveis
 public enum Jogada {
     PEDRA,
     PAPEL,

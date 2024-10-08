@@ -10,15 +10,15 @@ import jokempo.utils.Mensagens;
 
 //classe para gerenciar cada cliente conectado em uma thread separada, possibilitando múltiplos jogadores
 public class Gerenciador implements Runnable{
-	private Socket clienteSocket;
-	private BufferedReader in;
-	private PrintWriter out;
-	private int playerid;
-	private static Jogo jogo = new Jogo();
-	private static Jogada jogadaplayer1;
-	private static Jogada jogadaplayer2;
-	private static PrintWriter msgplayer1;
-	private static PrintWriter msgplayer2;
+	private Socket clienteSocket;	//conexão de socket do cliente
+	private BufferedReader in;	//ler as mensagens do cliente
+	private PrintWriter out;	//enviar mensagens para o cliene
+	private int playerid;	//identificador do cliente
+	private static Jogo jogo = new Jogo();	//instância atual do jogo
+	private static Jogada jogadaplayer1;	//armazena as jogadas do jogador 1
+	private static Jogada jogadaplayer2;	//armazena as jogadas do jogador 2
+	private static PrintWriter msgplayer1;	//enviar mensagens específicas para um cliente
+	private static PrintWriter msgplayer2;	//enviar mensagens específicas para outro cliente
 	
 	public Gerenciador (Socket socket) {
         this.clienteSocket = socket;
@@ -31,6 +31,7 @@ public class Gerenciador implements Runnable{
         } 
     }
 	
+	//gerencia a interação entre o servidor e um cliente
 	public void run() {
         try {
             String input;
@@ -61,6 +62,7 @@ public class Gerenciador implements Runnable{
         }
     }
 	
+	//método para comunicar os clientes sobre a existência (ou não) da jogada do seu adversário
 	private void comunicarEspera() {
 	    if (playerid == 1) {
 	        if (jogadaplayer2 == null) msgplayer1.println(Mensagens.WAIT);
@@ -71,6 +73,7 @@ public class Gerenciador implements Runnable{
 	    }
 	}
 	
+	//método que processa a jogada do cliente
 	private void processarJogada(String input) throws IllegalArgumentException {
 	    Jogada jogadaplayer = Jogada.valueOf(input.toUpperCase());
 	    synchronized (jogo) {
@@ -84,6 +87,7 @@ public class Gerenciador implements Runnable{
 	    }
 	}
 	
+	//método que fecha a conexão de um cliente com o servidor
 	private void fecharConexao() {
         try {
             clienteSocket.close();
@@ -93,6 +97,7 @@ public class Gerenciador implements Runnable{
         ServidorJokempo.removeClient(clienteSocket);
 	}
 	
+	//método que resolve as rodadas e envia as mensagens de resultado
 	private void resolverRodada() {
     	Rodada resultadoplayer1 = jogo.jogar(jogadaplayer1, jogadaplayer2);
         Rodada resultadoplayer2 = (resultadoplayer1 == Rodada.VITORIA) ? Rodada.DERROTA : (resultadoplayer1 == Rodada.DERROTA ? Rodada.VITORIA : Rodada.EMPATE);
@@ -101,11 +106,13 @@ public class Gerenciador implements Runnable{
         enviaResultado(msgplayer2, resultadoplayer2);
 	}
 	
+	//método para resetar as jogadas para a próxima rodada
 	private void resetarJogadas() {
         jogadaplayer1 = null;
         jogadaplayer2 = null;
 	}
 	
+	//gerencia a conexão de um novo jogador ao jogo
 	public void conectarJogador(PrintWriter out) {
         synchronized (jogo) {
             if (msgplayer1 == null) {
@@ -123,6 +130,7 @@ public class Gerenciador implements Runnable{
         }
 	}
 	
+	//método que envia os resultados para os clientes
 	private void enviaResultado(PrintWriter msgplayer, Rodada resultado) {
     	if (resultado == Rodada.VITORIA) {
             msgplayer.println(Mensagens.VENCEU);
@@ -133,6 +141,7 @@ public class Gerenciador implements Runnable{
         }
 	}
 	
+	//método que envia os resultados para o servidor
 	private void enviaResultadoSv(Rodada resultado1, Rodada resultado2) {
         if (resultado1 == Rodada.VITORIA) {
         	System.out.println(Mensagens.JOGOU1 + jogadaplayer1 + Mensagens.JOGOU2 + jogadaplayer2 + Mensagens.GANHOU1 + jogo.getPontosplayer1() + " X " + jogo.getPontosplayer2() + Mensagens.C2);
@@ -143,6 +152,7 @@ public class Gerenciador implements Runnable{
         }
 	}
 	
+	//método que pede que os jogadores façam as suas jogadas
     private void solicitarJogada() {
         jogo.incrementarRodada();
         int rodadaAtual = jogo.getNumeroRodada();
@@ -156,13 +166,14 @@ public class Gerenciador implements Runnable{
         }  
     }
     
+    //método que envia as mensagens de solicitação das jogadas
     private void enviarSolicitacaoDeJogada(PrintWriter msgPlayer, int placar, int placarOponente, int rodadaAtual) {
         msgPlayer.println(Mensagens.RODADA + rodadaAtual + Mensagens.FORMAT);
         msgPlayer.println(Mensagens.PLACAR + placar + " x " + placarOponente + Mensagens.OPONENTE);
         msgPlayer.println(Mensagens.JOGADA);
     }
 
-
+    //método que encerra o jogo e envia as mensagens finais
     private void encerrarJogo() {
         int placarPlayer1 = jogo.getPontosplayer1();
         int placarPlayer2 = jogo.getPontosplayer2();
@@ -177,18 +188,16 @@ public class Gerenciador implements Runnable{
         ServidorJokempo.removeBothClients();
     }
     
+    //método para enviar as mensagens finais
     private void enviarMensagemFinal(PrintWriter jogador, String resultado, int placar, int placarOponente) {
         jogador.println(resultado);
         jogador.println(Mensagens.PLACARFINAL + placar + " x " + placarOponente + Mensagens.OPONENTE);
     }
     
+    //método que envia as mensagens de encerramento para todo mundo
     private void encerrarParaTodos() {
         msgplayer1.println(Mensagens.ENDGAME);
         msgplayer2.println(Mensagens.ENDGAME);
         System.out.println(Mensagens.ENDGAMESV);
     }
-    	
-	public void sendMessage(String message) {
-		out.println(message);
-	}
 }
