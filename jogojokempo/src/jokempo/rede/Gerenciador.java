@@ -24,14 +24,10 @@ public class Gerenciador implements Runnable{
 	public Gerenciador (Socket socket) {
         this.clienteSocket = socket;
         try {
-            // Configurando o timeout no socket
             clienteSocket.setSoTimeout(TIMEOUT);
             in = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
             out = new PrintWriter(clienteSocket.getOutputStream(), true);
             conectarJogador(out);
-        } catch (SocketTimeoutException e) {
-            System.out.println("Cliente não enviou mensagens em " + (TIMEOUT / 1000) + " segundos. Desconectando...");
-            fecharConexao(); // Fecha a conexão se o timeout for atingido
         } catch (IOException e) {
             System.err.println(Mensagens.X_STREAMS + e.getMessage());
         } 
@@ -60,16 +56,31 @@ public class Gerenciador implements Runnable{
                 }
             }
         } catch (SocketTimeoutException e) {
-            System.out.println("Cliente não respondeu em " + (TIMEOUT / 1000) + " segundos. Desconectando...");
-            fecharConexao();
+        	timeout();
         } catch (IOException e) {
             if (!clienteSocket.isClosed()) {
                 System.err.println(Mensagens.X_COMUN + e.getMessage());
             }
         } finally {
-        	fecharConexao();
+        	ServidorJokempo.removeClient(clienteSocket);
         }
     }
+	
+	private void timeout(){
+        System.out.println(Mensagens.TIMEOUT + (TIMEOUT / 1000) + Mensagens.SEGUNDOS);
+        if (playerid == 1) {
+            msgplayer1.println(Mensagens.INATIVIDADE);
+            msgplayer1.println(Mensagens.FIMDEJOGO);
+            msgplayer2.println(Mensagens.INATIVIDADE2);
+            msgplayer2.println(Mensagens.FIMDEJOGO);
+        } else if (playerid == 2) {
+            msgplayer2.println(Mensagens.INATIVIDADE);
+            msgplayer2.println(Mensagens.FIMDEJOGO);
+            msgplayer1.println(Mensagens.INATIVIDADE2);
+            msgplayer1.println(Mensagens.FIMDEJOGO);
+        }
+        ServidorJokempo.removeBothClients();  
+	}
 	
 	//método para comunicar os clientes sobre a existência (ou não) da jogada do seu adversário
 	private void comunicarEspera() {
@@ -94,16 +105,6 @@ public class Gerenciador implements Runnable{
 	            comunicarEspera();
 	        }
 	    }
-	}
-	
-	//método que fecha a conexão de um cliente com o servidor
-	private void fecharConexao() {
-        try {
-            clienteSocket.close();
-        } catch (IOException e) {
-            System.err.println(Mensagens.X_SOCKET + e.getMessage());
-        }
-        ServidorJokempo.removeClient(clienteSocket);
 	}
 	
 	//método que resolve as rodadas e envia as mensagens de resultado
@@ -132,7 +133,9 @@ public class Gerenciador implements Runnable{
                 msgplayer2 = out;
                 playerid = 2;
                 msgplayer2.println(Mensagens.CONEC2);
+                msgplayer2.println(Mensagens.STARTGAME);
                 msgplayer1.println(Mensagens.CONECATT);
+                msgplayer1.println(Mensagens.STARTGAME);
                 System.out.println(Mensagens.START);
                 solicitarJogada();
             }
